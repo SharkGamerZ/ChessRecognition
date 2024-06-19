@@ -2,12 +2,12 @@ train: ../train/images
 val: ../valid/images
 test: ../test/images
 
-nc: 2
-names: ['chessboard', 'corner']
+nc: 1
+names: ['chessboard']
 
 roboflow:
   workspace: chess-ibeof
   project: chessboard-corners-d1qda
-  version: 3
+  version: 5
   license: Public Domain
-  url: https://universe.roboflow.com/chess-ibeof/chessboard-corners-d1qda/dataset/3
+  url: https://universe.roboflow.com/chess-ibeof/chessboard-corners-d1qda/dataset/5

@@ -1,8 +1,8 @@
 
-Chessboard COrners - v3 2024-05-16 3:34pm
+Chessboard COrners - v5 2024-05-17 6:18pm
 ==============================
 
-This dataset was exported via roboflow.com on May 16, 2024 at 1:34 PM GMT
+This dataset was exported via roboflow.com on May 17, 2024 at 4:19 PM GMT
 
 Roboflow is an end-to-end computer vision platform that helps you
 * collaborate with your team on computer vision projects
@@ -17,7 +17,7 @@ visit https://github.com/roboflow/notebooks
 
 To find over 100k other datasets and pre-trained models, visit https://universe.roboflow.com
 
-The dataset includes 136 images.
+The dataset includes 609 images.
 Chess are annotated in YOLOv9 format.
 
 The following pre-processing was applied to each image:
