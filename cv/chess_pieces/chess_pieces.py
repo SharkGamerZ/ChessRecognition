@@ -1,63 +1,81 @@
 from ultralytics import YOLO
+from ultralytics.utils.plotting import Annotator
 import torch
 import numpy as np
 import cv2
 
-def getMask(model, result):
-    # get array results
-    masks = result.masks.data
-    boxes = result.boxes.data
-    # extract classes
-    clss = boxes[:, 5]
-    # get indices of results where class is 0 (chessboard has class 0)
-    chessboard_indices = torch.where(clss == 0)
-    # use these indices to extract the relevant masks
-    chessboard_masks = masks[chessboard_indices]
-    # scale for visualizing results
-    chessboard_mask = torch.any(chessboard_masks, dim=0).int() * 255
-    # save to file
-    cv2.imwrite(str(model.predictor.save_dir / 'merged_segs.jpg'), chessboard_mask.cpu().numpy())
+def getPieces(result):
+    # Get the boxes from the result
+    boxes = result.boxes
 
-    mask = cv2.imread(str(model.predictor.save_dir / 'merged_segs.jpg'))
-    mask = cv2.resize(mask, (640, 640))
+    # Create pieces list
+    pieces = []
 
-    return mask
 
-def getCorners(filename=None):
+    for box in boxes:
+        b = box.xyxy[0] # get box coordinates in (left, top, right, bottom) format
+        c = box.cls     # get box class
+
+        # Get the two points
+        p1 = (int(b[0].item()), int(b[1].item()))
+        p2 = (int(b[2].item()), int(b[3].item()))
+
+        # Match the class
+        match c:
+            case 0:
+                classe = "black-bishop"
+            case 1:
+                classe = "black-king"
+            case 2:
+                classe = "black-knight"
+            case 3:
+                classe = "black-pawn"
+            case 4:
+                classe = "black-queen"
+            case 5:
+                classe = "black-rook"
+            case 6:
+                classe = "white-bishop"
+            case 7:
+                classe = "white-king"
+            case 8:
+                classe = "white-knight"
+            case 9:
+                classe = "white-pawn"
+            case 10:
+                classe = "white-queen"
+            case 11:
+                classe = "white-rook"
+
+        pieces.append((classe, p1, p2))
+
+
+    return pieces
+
+def getPiecesList(filename):
     # Load the model
-    model = YOLO("best.pt")
+    model = YOLO("chess_pieces.pt")
 
     # Load the file and do inference
     results = model(filename, save=True, save_conf=True, conf=0.5)
 
-    # Extract binary mask for the chessboard
-    # --------------------------------------------------------------------------------------------------
-    mask = getMask(model, results[0])
 
+    # Convert pieces found into list as (class, (x1,y2), (x2,y2))
+    pieces = getPieces(results[0])
 
-    # Extract contours
-    # --------------------------------------------------------------------------------------------------
-    imgray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
-    ret, thresh = cv2.threshold(imgray, 127, 255, 0)
-    contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    contour = contours[0]
+    return pieces
 
-    # Draw approximated polygon for the chessboard
-    # --------------------------------------------------------------------------------------------------
-    perimeter = cv2.arcLength(contour, True)
-    approx = cv2.approxPolyDP(contour, 0.05 * perimeter, True)
-
-    return approx
 
 if __name__ == "__main__":
     filename = "test.jpg"
     img = cv2.imread(filename)
     img = cv2.resize(img, (640, 640))
 
-    approx = getCorners(filename)
+    pieces = getPiecesList(filename)
     
-    cv2.drawContours(img, [approx], -1, (0,0,255), 3)
+    [cv2.rectangle(img, p[1], p[2], (0,255,0), 2) for p in pieces]
 
-    cv2.imshow('Contours', img)
-    cv2.waitKey(0)
+    cv2.imshow("Pezzi", img)
+    cv2.waitKey()
+
 

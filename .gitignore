@@ -1,5 +1,8 @@
+/cv/runs
 /cv/chessboard/runs
 /cv/chess_pieces/runs
+/cv/chessboard/__pycache__
+/cv/chess_pieces/__pycache__
 /.venv
 
 

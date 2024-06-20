@@ -3,6 +3,8 @@ import torch
 import numpy as np
 import cv2
 
+
+
 def getMask(model, result):
     # get array results
     masks = result.masks.data
@@ -23,9 +25,9 @@ def getMask(model, result):
 
     return mask
 
-def getCorners(filename=None):
+def getChessboardCorners(filename):
     # Load the model
-    model = YOLO("best.pt")
+    model = YOLO("chessboard.pt")
 
     # Load the file and do inference
     results = model(filename, save=True, save_conf=True, conf=0.5)
@@ -39,9 +41,11 @@ def getCorners(filename=None):
     # --------------------------------------------------------------------------------------------------
     imgray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
     ret, thresh = cv2.threshold(imgray, 127, 255, 0)
-    contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    contour = contours[0]
+    contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_KCOS)
 
+    # Take only the largest contour (to avoid errors)
+    contour = max(contours, key = cv2.contourArea)
+    
     # Draw approximated polygon for the chessboard
     # --------------------------------------------------------------------------------------------------
     perimeter = cv2.arcLength(contour, True)
@@ -50,11 +54,11 @@ def getCorners(filename=None):
     return approx
 
 if __name__ == "__main__":
-    filename = "test.jpg"
+    filename = "test2.jpg"
     img = cv2.imread(filename)
     img = cv2.resize(img, (640, 640))
 
-    approx = getCorners(filename)
+    approx = getChessboardCorners(filename)
     
     cv2.drawContours(img, [approx], -1, (0,0,255), 3)
 
