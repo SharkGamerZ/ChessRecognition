@@ -7,8 +7,8 @@ def train():
     results = model.train(
         data="data.yaml",
         imgsz = 640,
-        epochs = 2,
-        batch = 8)
+        epochs = 1,
+        batch = 1)
 
     # Evaluate the model's performance on the validation set
     results = model.val()
