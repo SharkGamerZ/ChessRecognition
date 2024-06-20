@@ -1,2 +1,5 @@
 /runs
+/.venv
 yolov8n-seg.pt
+
+
