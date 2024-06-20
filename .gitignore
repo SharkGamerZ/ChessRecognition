@@ -1,5 +1,5 @@
-/runs
+/cv/chessboard/runs
+/cv/chess_pieces/runs
 /.venv
-yolov8n-seg.pt
 
 
