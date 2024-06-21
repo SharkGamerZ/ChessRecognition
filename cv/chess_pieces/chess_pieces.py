@@ -20,32 +20,32 @@ def getPieces(result):
         p1 = (int(b[0].item()), int(b[1].item()))
         p2 = (int(b[2].item()), int(b[3].item()))
 
-        # Match the class
+        # Match the class with the FEN notation
         match c:
             case 0:
-                classe = "black-bishop"
+                classe = "b"
             case 1:
-                classe = "black-king"
+                classe = "k"
             case 2:
-                classe = "black-knight"
+                classe = "n"
             case 3:
-                classe = "black-pawn"
+                classe = "p"
             case 4:
-                classe = "black-queen"
+                classe = "q"
             case 5:
-                classe = "black-rook"
+                classe = "r"
             case 6:
-                classe = "white-bishop"
+                classe = "B"
             case 7:
-                classe = "white-king"
+                classe = "K"
             case 8:
-                classe = "white-knight"
+                classe = "N"
             case 9:
-                classe = "white-pawn"
+                classe = "P"
             case 10:
-                classe = "white-queen"
+                classe = "Q"
             case 11:
-                classe = "white-rook"
+                classe = "R"
 
         pieces.append((classe, p1, p2))
 
@@ -60,7 +60,7 @@ def getPiecesList(filename):
     results = model(filename, save=True, save_conf=True, conf=0.5)
 
 
-    # Convert pieces found into list as (class, (x1,y2), (x2,y2))
+    # Convert pieces found into list as (class, (x1,y1), (x2,y2))
     pieces = getPieces(results[0])
 
     return pieces

@@ -29,8 +29,15 @@ def getChessboardCorners(filename):
     # Load the model
     model = YOLO("chessboard.pt")
 
+    # Preprocess the image
+    img = cv2.imread(filename)
+    img = cv2.resize(img, (640, 640))
+    imgray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    blur = cv2.blur(imgray, (5,5))
+    img = cv2.cvtColor(blur, cv2.COLOR_GRAY2BGR)
+
     # Load the file and do inference
-    results = model(filename, save=True, save_conf=True, conf=0.5)
+    results = model(img, save=True, save_conf=True, conf=0.5)
 
     # Extract binary mask for the chessboard
     # --------------------------------------------------------------------------------------------------
