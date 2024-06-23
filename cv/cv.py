@@ -38,11 +38,14 @@ def getIndexes(centers):
 				i = index
 			if p[1][1] in range(start, end + 1):
 				j = index
-		try:
-			indexes.append((p[0], i, j))
-		except:
-			print("Errore nel riconoscere:",p)
-			continue
+		if p[1][0] < 0 or p[1][1] < 0:
+			print("The piece: ", p, "is outside the chessboard")
+		else:
+			try:
+				indexes.append((p[0], i, j))
+			except:
+				print("Can't position the piece :",p)
+				continue
 
 	return indexes
 
@@ -54,7 +57,7 @@ def getChessboardMatrix(indexes):
 		i = p[1] - 1
 		j = p[2] - 1
 		if chessboard[j][i] != ' ':
-			print(p[0], " sta sostituendo ", chessboard[j][i])
+			print(p, " is overwriting ", chessboard[j][i], " in ", i, j)
 		chessboard[j][i] = p[0]
 
 	return chessboard
@@ -124,7 +127,7 @@ def getFen(filename):
 	return fen
 
 if __name__ == '__main__':
-	filename = 'test.jpg'
+	filename = 'test3.jpg'
 
 	fen = getFen(filename)
 
