@@ -127,7 +127,7 @@ def getFen(filename):
 	return fen
 
 if __name__ == '__main__':
-	filename = 'test3.jpg'
+	filename = 'test4.jpg'
 
 	fen = getFen(filename)
 
