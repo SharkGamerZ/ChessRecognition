@@ -53,6 +53,8 @@ def getChessboardMatrix(indexes):
 	for p in indexes:
 		i = p[1] - 1
 		j = p[2] - 1
+		if chessboard[j][i] != ' ':
+			print(p[0], " sta sostituendo ", chessboard[j][i])
 		chessboard[j][i] = p[0]
 
 	return chessboard
