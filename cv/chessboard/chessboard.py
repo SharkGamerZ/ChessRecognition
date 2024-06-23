@@ -25,6 +25,29 @@ def getMask(model, result):
 
     return mask
 
+def sortPoints(approx):
+    somme = []
+
+    # Find the UpperLeft and DownRight points
+    for i in range(len(approx)):
+        num = approx[i][0]
+        somme.append(num[0] + num[1])
+
+    # Put the UpperLeft point in first position and DownRight point in third position
+    ul = np.argmin(somme)
+    dr = np.argmax(somme)
+    approx[[ul, 0]] = approx[[0, ul]]
+    approx[[dr, 2]] = approx[[2, dr]]
+
+
+    if approx[1][0][0] > approx[3][0][0]:
+        approx[[1, 3]] = approx[[3, 1]]
+
+
+    return approx
+
+
+
 def getChessboardCorners(filename):
     # Load the model
     model = YOLO("chessboard.pt")
@@ -58,10 +81,12 @@ def getChessboardCorners(filename):
     perimeter = cv2.arcLength(contour, True)
     approx = cv2.approxPolyDP(contour, 0.05 * perimeter, True)
 
+    points = sortPoints(approx)
+
     return approx
 
 if __name__ == "__main__":
-    filename = "test2.jpg"
+    filename = "test4.jpg"
     img = cv2.imread(filename)
     img = cv2.resize(img, (640, 640))
 

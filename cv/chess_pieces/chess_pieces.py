@@ -56,8 +56,12 @@ def getPiecesList(filename):
     # Load the model
     model = YOLO("chess_pieces.pt")
 
+    # Preprocess the image
+    img = cv2.imread(filename)
+    img = cv2.resize(img, (640, 640))
+
     # Load the file and do inference
-    results = model(filename, save=True, save_conf=True, conf=0.5)
+    results = model(img, save=True, save_conf=True, conf=0.5)
 
 
     # Convert pieces found into list as (class, (x1,y1), (x2,y2))
@@ -72,7 +76,7 @@ if __name__ == "__main__":
     img = cv2.resize(img, (640, 640))
 
     pieces = getPiecesList(filename)
-    
+
     [cv2.rectangle(img, p[1], p[2], (0,255,0), 2) for p in pieces]
 
     cv2.imshow("Pezzi", img)

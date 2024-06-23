@@ -8,6 +8,7 @@ import numpy as np
 
 
 def getCentersPerspectiveAdjusted(pieces, matrix):
+	centers = []
 	for i in range(len(pieces)):
 		p = pieces[i]
 		# Perspective warp the pieces' coordinates
@@ -20,9 +21,9 @@ def getCentersPerspectiveAdjusted(pieces, matrix):
 		y = round((new_coord[0][1]*0.3+new_coord[1][1]*0.7))
 		c = (x, y)
 		
-		pieces[i] = (p[0], c)
+		centers.append((p[0], c))
 
-	return pieces
+	return centers
 
 
 def getIndexes(centers):
@@ -32,13 +33,16 @@ def getIndexes(centers):
 	indexes = []
 	for p in centers:
 		for index, (start, end) in enumerate(ranges, start=1):
-		    # Check the x
-		    if p[1][0] in range(start, end + 1):
-		    	i = index
-		    if p[1][1] in range(start, end + 1):
-		        j = index
-
-		indexes.append((p[0], i, j))
+			# Check the x
+			if p[1][0] in range(start, end + 1):
+				i = index
+			if p[1][1] in range(start, end + 1):
+				j = index
+		try:
+			indexes.append((p[0], i, j))
+		except:
+			print("Errore nel riconoscere:",p)
+			continue
 
 	return indexes
 
@@ -93,34 +97,34 @@ def getFen(filename):
 			i += 1
 		fen += '/'
 	fen = fen[:-1]
-	print(fen)
+
+
+	# To debug, it visualizes the images
+	if __name__ == '__main__':
+		img = cv2.imread(filename)
+		img = cv2.resize(img, (640, 640))
+
+		# Draw chessboard and pieces' box
+		cv2.drawContours(img, [chessboard], -1, (0,0,255), 3)
+		[cv2.rectangle(img, p[1], p[2], (0,255,0), 2) for p in pieces]
+
+		# Perspective Warp the image
+		pts1 = np.float32(chessboard)
+		pts2 = np.float32([[0,0], [0,640], [640,640], [640,0]])
+
+		matrix = cv2.getPerspectiveTransform(pts1, pts2)
+		result = cv2.warpPerspective(img, matrix, (640, 640))
+
+		[cv2.circle(result, c[1], 2, (255, 0, 0), -1) for c in centers]
+
+		cv2.imshow("Risultato", result)
+
+	return fen
 
 if __name__ == '__main__':
-	filename = 'test2.jpg'
-	img = cv2.imread(filename)
-	img = cv2.resize(img, (640, 640))
-	img2 = cv2.resize(img, (640, 640))
-
-
-	chessboard = getChessboardCorners(filename)
-	pieces = getPiecesList(filename)
-
-	# Draw chessboard and pieces' box
-	cv2.drawContours(img, [chessboard], -1, (0,0,255), 3)
-	[cv2.rectangle(img, p[1], p[2], (0,255,0), 2) for p in pieces]
-
-	# Perspective Warp the image
-	pts1 = np.float32(chessboard)
-	pts2 = np.float32([[0,0], [0,640], [640,640], [640,0]])
-
-	matrix = cv2.getPerspectiveTransform(pts1, pts2)
-	result = cv2.warpPerspective(img, matrix, (640, 640))
-
+	filename = 'test.jpg'
 
 	fen = getFen(filename)
 
-
-
-	cv2.imshow("Immagine", img2)
-	cv2.imshow("Risultato", result)
+	print(fen)
 	cv2.waitKey()
