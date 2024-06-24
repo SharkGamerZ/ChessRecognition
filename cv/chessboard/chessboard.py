@@ -1,5 +1,3 @@
-from ultralytics import YOLO
-import torch
 import numpy as np
 import cv2
 
@@ -49,25 +47,66 @@ def sortPoints(approx):
 
 
 def getChessboardCorners(filename):
-    # Load the model
-    model = YOLO("chessboard.pt")
-
     # Preprocess the image
-    
+    img = cv2.imread(filename)
     img = cv2.resize(img, (640, 640))
-    imgray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    blur = cv2.blur(imgray, (5,5))
-    img = cv2.cvtColor(blur, cv2.COLOR_GRAY2BGR)
+    # get the minimum bounding box for the chip image
+    image = img[10:-10, 10:-10]
+    imgray = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)[..., 0]
+    ret, thresh = cv2.threshold(imgray, 20, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+    mask = 255 - thresh
+    contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
 
-    if isinstance(filename, str):
-        img = cv2.imread(filename)
-    elif isinstance(img, np.ndarray):
-        img = filename
-    else:
-        print("Format not supported:", type(filename), "\nMust be a string or a numpy array")
-        exit()
+    max_area = 0
+    best = None
+    for contour in contours:
+        area = cv2.contourArea(contour)
+        if area > max_area:
+            max_area = area
+            best = contour
 
-        
+    rect = cv2.minAreaRect(best)
+    box = cv2.boxPoints(rect)
+    box = np.int0(box)
+
+    # crop image inside bounding box
+    scale = 1  # cropping margin, 1 == no margin
+    W = rect[1][0]
+    H = rect[1][1]
+
+    Xs = [i[0] for i in box]
+    Ys = [i[1] for i in box]
+    x1 = min(Xs)
+    x2 = max(Xs)
+    y1 = min(Ys)
+    y2 = max(Ys)
+
+    angle = rect[2]
+    rotated = False
+    if angle < -45:
+        angle += 90
+        rotated = True
+
+    center = (int((x1 + x2) / 2), int((y1 + y2) / 2))
+    size = (int(scale * (x2 - x1)), int(scale * (y2 - y1)))
+
+    M = cv2.getRotationMatrix2D((size[0] / 2, size[1] / 2), angle, 1.0)
+
+    cropped = cv2.getRectSubPix(image, size, center)
+    cropped = cv2.warpAffine(cropped, M, size)
+
+    croppedW = W if not rotated else H
+    croppedH = H if not rotated else W
+
+    image = cv2.getRectSubPix(
+        cropped, (int(croppedW * scale), int(croppedH * scale)), (size[0] / 2, size[1] / 2))
+    cv2.imshow("Vediamo", image)
+    cv2.waitKey(0)
+
+    exit()
+
+
+
     # Load the file and do inference
     results = model(img, save=True, save_conf=True, conf=0.5)
 
@@ -95,7 +134,7 @@ def getChessboardCorners(filename):
     return approx
 
 if __name__ == "__main__":
-    filename = "test4.jpg"
+    filename = "test7.jpg"
     img = cv2.imread(filename)
     img = cv2.resize(img, (640, 640))
 
