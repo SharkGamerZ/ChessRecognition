@@ -53,12 +53,21 @@ def getChessboardCorners(filename):
     model = YOLO("chessboard.pt")
 
     # Preprocess the image
-    img = cv2.imread(filename)
+    
     img = cv2.resize(img, (640, 640))
     imgray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     blur = cv2.blur(imgray, (5,5))
     img = cv2.cvtColor(blur, cv2.COLOR_GRAY2BGR)
 
+    if isinstance(filename, str):
+        img = cv2.imread(filename)
+    elif isinstance(img, np.ndarray):
+        img = filename
+    else:
+        print("Format not supported:", type(filename), "\nMust be a string or a numpy array")
+        exit()
+
+        
     # Load the file and do inference
     results = model(img, save=True, save_conf=True, conf=0.5)
 
